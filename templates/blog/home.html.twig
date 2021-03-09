@@ -1,0 +1,36 @@
+{% extends "base.html.twig" %}
+{# on hérite du gabarit de base base.html.twig (header, nav, footer, liens etc..#}
+{# extends : commande Twig #}
+
+{#block : commande Twig#}
+{# Le block 'body' fait appek au 'bloc' définit dans la base.html.twig qui permet d'intégrer le contenu du template donc le block 'body' de base.html.twig (entre la nav et le footer)#}
+{% block body %}
+
+<div class="container">
+
+<h1 class="display-4 text-center my-5">{{ title }}</h1>
+{# Twig rst un langage de rendu, un moteur de template, qui permet de traiter et d'afficher les données transmit par le controller sur les différents template#}
+{# Twig est intégré automatiquement au framework de Symfony#}
+{# title : variable TWIG qui est transmit par le controlelr par la méthode home()#}
+
+{#Dans les templates, nous n'avons plus aucune lignes de code de PHP#}
+{# {{ }}-> double accolades, ce que l'on appel l'interpolation#}
+
+{# age : variable Twig qui est transmise par le controller, via la méthode home() -> render([])#}
+
+{# commande {% %} -> commande Twig #}
+{% if age > 18  %}
+
+<p> Tu es bien majeur</p>
+
+{% else  %}
+
+<p>No way tu es mineur !!</p>
+
+{% endif %}
+
+
+langue (conjugaisons, construction et association des phrases…).Un texte est une série orale ou écrite de mots perçus comme constituant un ensemble cohérent, porteur de sens et utilisant les structures propres à une 
+</div>
+{% endblock %}
+
