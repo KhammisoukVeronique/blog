@@ -32,8 +32,10 @@
              
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
+
                   <a href="{{ path('blog_show', {'id': dataChaqueArticle.id}) }}" class="btn btn-sm btn-outline-secondary">Lire la suite</a>
-                  <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  <a href="{{ path('blog_edit', {'id': dataChaqueArticle.id}) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+                
                 </div>
 
                 {# La bdd renvoi un objet issu de la class DateTime, on ne peut la convertir en chaine de caractère#}
