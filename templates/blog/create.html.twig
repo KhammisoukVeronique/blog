@@ -10,26 +10,68 @@
 
 {% block body %}
 
-    <h1 class="display-4 text-center my-5">Création d'un nouvel article</h1>
+    <h1 class="display-4 text-center my-5">
 
-    <form method="post" class="col-md-5 mx-auto">
+{# Si la variable editMode renvoie TRUE, cela veut dire que l'id de l'article est définit, c'est une modification #}
+    {% if editMode %}
+
+            Modification de l'article n°{{ editMode }}
+    {% else %}        
+            {# Sinon, l'id n'est pas définit, c'est la création d'un nouvel article#}
+            Création d'un nouvel article
+
+    {% endif %}
+    </h1>
+    {#<form method="post" class="col-md-5 mx-auto">
         <div class="form-group">
-            <label for="titre">Titre</label>
-            <input type="text" class="form-control" id="titre" name="titre">
-            
-            
+            <label for="title">Titre</label>
+            <input type="text" class="form-control" id="title" name="title">
         </div>
+
         <div class="form-group">
             <label for="content">Contenu de l'article</label>
-            <input type="password" class="form-control" id="content" name="content">
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            <textarea class="form-control" id="content" name="content" rows="15"></textarea>
         </div>
         <div class="form-group">
-        
-            <input type="text" class="form-check-input" id="image" name="image">
-            <label class="form-control" for="image">Photo de l'article</label>
+            <label for="image">Photo de l'article</label>
+            <input type="text" class="form-control" id="image" name="image">
         </div>
-        <button type="submit" class="btn btn-primary mb-5">Enregistrer l'article</button>
-</form>     
+        <button type="submit" class="btn btn-warning mb-5">Enregistrer l'article</button>
+</form>#}
+
+{# form() : fonction de Twig qui permet d'afficher le rendu du formulaire transmit par le Controller 'formArticle'#}
+{# {{ form(formArticle) }} #}
+        {# form_start() fonction Twig, on ouvre la balise <form>#}        
+        {{ form_start(formArticle, {'attr': {'class': 'col-md-5 mx-auto'} }) }}
+
+        {# form_row() : fonction Twig permettant de faire appel à chaque champ de formulaire transmit par le controller#}
+        {{ form_row(formArticle.title, { 
+                                        'attr': {'placeholder': "Saisir le titre de l'article", "maxlength": false, "pattern": false}, 
+                                        'label': "Titre de l'article" 
+                                        }) 
+        }}
+
+        {{ form_row(formArticle.content, { 
+                                        'attr': {'placeholder': "Contenu de l'article", 
+                                        'rows' : 15 }, 
+                                        'label': "Contenu de l'article" 
+                                        }) 
+        }}
+
+        {{ form_row(formArticle.image, { 
+                                        'attr': {'placeholder': "Saisir l'URL de l'image"}, 
+                                        'label': "URL de l'image" 
+                                        }) 
+        }}
+
+            <button type="submit" class="btn btn-warning">Enregistrer l'article 
+                {% if editMode %}
+                    Enregistrer les modif'
+                {% else %}
+                    Enregistrer l'article
+                {% endif %}
+            </button>
+        {{ form_end(formArticle) }}
+        {#form-end fonction Twig, on ferme la balise </form>#}
 
 {% endblock %}
