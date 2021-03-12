@@ -51,6 +51,9 @@
                                         }) 
         }}
 
+        {{ form_row(formArticle.category, {'label' : "Choisir une catégorie"}) }}
+
+
         {{ form_row(formArticle.content, { 
                                         'attr': {'placeholder': "Contenu de l'article", 
                                         'rows' : 15 }, 
@@ -63,8 +66,9 @@
                                         'label': "URL de l'image" 
                                         }) 
         }}
+            
 
-            <button type="submit" class="btn btn-warning">Enregistrer l'article 
+            <button type="submit" class="btn btn-warning">
                 {% if editMode %}
                     Enregistrer les modif'
                 {% else %}
