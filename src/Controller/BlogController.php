@@ -3,9 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Comment;
+use Monolog\Handler\Handler;
 use App\Form\ArticleFormType;
+use App\Form\CommentFormType;
 use App\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -171,22 +175,48 @@ class BlogController extends AbstractController
      * 
      * @Route("/blog/{id}", name="blog_show")
     */
-    public function show(Article $article): Response
+    public function show(Article $article, Request $request, EntityManagerInterface $manager): Response
     {
-        // $repoArticle est un objet de la class ArticleRepository
-        //$repoArticle = $this->getDoctrine()->getRepository(Article::class);
+        //dump($article);
+        $comment = new Comment;
 
-        //dump($repoArticle);
+        $formComment = $this->createForm(CommentFormType::class, $comment);
 
-        //dump($id); //$id = 9
+        dump($request);
 
-        // On transmet à la méthode find() de la class ArticleRepository l'id récupéré dans l'URL et transmit en argument de la fonction show() | $id = 9
-        //$article = $repoArticle->find($id);
+        $formComment->handleRequest($request);
+     
 
-        dump($article);
+        if($formComment->isSubmitted() && $formComment->isValid())
+        {
+            // On entre dans cette condition uniquement dans le cas où nous avons validé le formulaire et que chque valeur saisie ont bien été transmises au bon setter de l'objet
 
+            $comment->setCreatedAt(new \DateTime)
+                    ->setArticle($article); // on relie le commentaire à l'article
+                    //la  méthode setArticle() attend en argument un objet issu de la class Article, c'est à dire un article de la BDD
+                    dump($comment);
+            $manager->persist($comment);
+            $manager->flush();
+
+            // Envoi d'un message de validation en session grâce à la méthode addFlash()
+            //1. success : identifiant du message
+            //2. le message
+            $this->addFlash('success', "Le commentaire a bien été posté");
+
+            return $this->redirectToRoute('blog_show', [
+                'id'=> $article->getId()
+            ]);
+        }
+        
+
+        
+
+
+        
+       
         return $this->render('blog/show.html.twig', [
-            'articleTwig' => $article //// on envoi sur le template les données selectionnées en BDD, c'est à dire les informations d'1 article en fonction l'id transmit dans l'URL
+            'articleTwig' => $article, //// on envoi sur le template les données selectionnées en BDD, c'est à dire les informations d'1 article en fonction l'id transmit dans l'URL
+            'formComment' => $formComment->createView()
         ]);
             
 

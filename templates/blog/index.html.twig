@@ -12,7 +12,7 @@
       <div class="row">
 
     {# articles : variable TWIG qui vient du BloController de la méthode index() qui contient tous les articles selectionnés en BDD (findAll() ArticleRepository)#}
-    {#chaqueArticle est une variable de reception qui receptionne 1 article par tour de boucle FOr#}
+    {# datachaqueArticle est une variable de reception qui receptionne 1 article par tour de boucle For#}
     {% for dataChaqueArticle in  articles %}
 
         {#{{ dump(dataChaqueArticle) }}#}
@@ -27,11 +27,11 @@
             
             <h4 class="text-center"> {{dataChaqueArticle.title}} </h4> <hr>
             {# striptags est un filtre Twig twig.symfony.com qui permet de supprimer les balises HTML #}
-
-              <p class="card-text">{{ dataChaqueArticle.content|striptags }}</p>
+              {# slice() : filtre Twig qui permet de couper une partie de la chaine afin de n'avoir que le début de l'article#}
+              <p class="card-text">{{ dataChaqueArticle.content|striptags|slice(0,250) }}...</p>
              
               <div class="d-flex justify-content-between align-items-center">
-                <div class="btn-group">
+                <div class="btn-group mr-2">
 
                   <a href="{{ path('blog_show', {'id': dataChaqueArticle.id}) }}" class="btn btn-sm btn-outline-secondary">Lire la suite</a>
                   <a href="{{ path('blog_edit', {'id': dataChaqueArticle.id}) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
@@ -40,7 +40,13 @@
 
                 {# La bdd renvoi un objet issu de la class DateTime, on ne peut la convertir en chaine de caractère#}
                 {# On utilise donc un filte Twign: date()#}
-                <small class="text-muted">Posté le {{ dataChaqueArticle.createdAt|date('d/m/Y') }} à {{ dataChaqueArticle.createdAt|date('H:i:s') }}</small>
+                <small class="text-muted">Posté le {{ dataChaqueArticle.createdAt|date('d/m/Y') }} à {{ dataChaqueArticle.createdAt|date('H:i:s') }} dans la catégorie <strong> {{ dataChaqueArticle.category.title }}</strong></small>
+
+                {# Nous avons une relation entre la table Article et la talbe Category 
+                   Grâce aux relations bi-dimentionnelle, en selectionnant dans la table Article, nous avons automatiquement accès à toutes les correspondances dans les autres tables. 
+
+                   Ici si nous selectionnons les articlesn nous avons automatiquement accès à la tablr catégorie associée à l'article ainsi que tout les commentaires liés à l'article
+                #}
               </div>
             </div>
           </div>
