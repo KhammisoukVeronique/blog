@@ -11,7 +11,7 @@
         
         {% block stylesheets %}
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
             <link rel="stylesheet" href="{{ asset('css/style.css')}}">
             {# asset() : fonction TWIG qui permet de générer un lien absolu pour les fichiers de liaisons#}
         {% endblock %}
@@ -49,8 +49,36 @@
                             <a class="dropdown-item" href="#">Something else here</a>
                             </div>
                         </li>
+
+                        {# Si app.user retourne TRUE, cela veut dire que l'internaute est bien connecté, on lui propose un lien de deconnexion#}
+                        {% if app.user %}
+                                 <li class="nav-item">
+                            <a class="nav-link" href=" {{ path('security_logout') }}">Déconnexion</a>
+                        </li>
                         
+                        {% endif %}
+
+                        {% if app.user %}
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="">Mon Compte</a>
+                        </li>
+
+                        {# sinon l'utilisateur n'est pas connecté#}
+                        {% else %}
+
+                         <li class="nav-item">
+                            <a class="nav-link" href=" {{ path('security_registration') }}">Créez votre compte</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href=" {{ path('security_login') }}">Identifiez-vous</a>
+                        </li>
+
+                        {% endif %}
+
                         </ul>
+
                         <form class="form-inline my-2 my-lg-0">
                         <input class="form-control mr-sm-2" type="search" placeholder="Recherche.." aria-label="Search">
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Recherche</button>
