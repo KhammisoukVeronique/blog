@@ -195,8 +195,8 @@ class BlogController extends AbstractController
                     ->setArticle($article); // on relie le commentaire à l'article
                     //la  méthode setArticle() attend en argument un objet issu de la class Article, c'est à dire un article de la BDD
                     dump($comment);
-            $manager->persist($comment);
-            $manager->flush();
+            $manager->persist($comment);// on prépare et on garde en mémoire la session
+            $manager->flush();// on execute la requete INSERT (execute())
 
             // Envoi d'un message de validation en session grâce à la méthode addFlash()
             //1. success : identifiant du message
