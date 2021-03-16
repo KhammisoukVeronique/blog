@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} BackOffice {% endblock %}
+
+{% block body %}
+
+    <div class="container">
+            <h1 class="display-4 text-center my-5"> BACK OFFICE </h1>
+
+            <h4 class="text-center"> 
+                Bienvenue
+
+            {# Si l'internaute est connecté, alors on affiche son username en piochant directement dans la session (app.user)#}
+            {% if app.user %}
+
+                <span class="text-info"> {{ app.user.username }}</span>
+
+            {% endif %}
+                dans le back-office
+            
+            </h4>
+
+            <div class="text-center">
+
+                <a href="{{ path('admin_articles') }}" class="col-md-4 btn-dark ">GESTION DES ARTICLES</a>
+
+                <a href="" class="col-md-4 btn-dark ">GESTION DES CATEGORIES</a>
+
+                <a href="" class="col-md-4 btn-dark">GESTION DES COMMENTAIRES</a>
+
+                <a href="" class="col-md-4 btn-dark">GESTION DES MEMBRES</a>
+
+            </div>
+    </div>  
+
+{% endblock %}

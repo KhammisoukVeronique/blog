@@ -84,6 +84,11 @@ class User implements UserInterface
      */
     public $confirm_password;
 
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -135,7 +140,7 @@ class User implements UserInterface
         
     }
 
-    //Ravoie la chaine de caractère non encodé que l'utilisateur a saisi, qui est utilisé à l'origine pour encoder le mot de passe
+    //Renvoie la chaine de caractère non encodé que l'utilisateur a saisi, qui est utilisé à l'origine pour encoder le mot de passe
     public function getSalt()
     {
 
@@ -145,7 +150,14 @@ class User implements UserInterface
     // Renvoi les rôles accordés à l'utilisateur
     public function getRoles()
     {
+        //return ["ROLE_USER"];
+        return $this->roles; // on retourne les roles stockés en BDD
+    }
 
-        return ["ROLE_USER"];
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 }

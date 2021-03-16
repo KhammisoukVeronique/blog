@@ -48,5 +48,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # on précise à symfony que seulement les ROLES_ADMIN stocké en BDD auront accès à la route /admin
+         - { path: ^/admin, roles: ROLE_ADMIN }
+    
+    # Si jamais on tente d'acceder au backOffie mais que dans la BDD, c'est un ROLE_USER, on redirige l'internaute vers l'affichage des articles
+    access_denied_url: /blog
+         

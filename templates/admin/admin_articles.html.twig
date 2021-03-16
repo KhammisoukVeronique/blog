@@ -1,0 +1,67 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+
+        BACK OFFICE || GESTION des ARTICLES
+
+{% endblock %}
+
+
+{% block body %}
+
+        <h1 class="display-4 text-center my-5">  BACK OFFICE || GESTION des ARTICLES </h1>
+
+        {# app : variable Twig qui contient toute les informations stokées en session #}
+        {# flashes() : méthode permettant d'accéder aux messages utilisateur stockéq en session#}
+        {# il peut y avoir plusieurs messages stockés donc nous sommes obligé de boucler#}
+        {% for message in app.flashes('success') %}
+
+            <div class="col-md-5 bg-success p-4 rounded mx-auto text-center text-white mb-3">
+                    {{ message }}
+            </div>
+
+        {% endfor %}
+        <table class="table table-bordered text-center">
+
+            <tr>
+                    {# colonnes : variable Twig envoyé via AdminController qui contient tout les noms des champs/colonnes de la table Article #}
+                    {# oneColonne : variable de reception qui receptionne le nom d'une colonne par tour de boucle FOR #}
+                    {% for oneColonne in colonnes %}
+                        {# Si oneColonne contient le nom de colonne 'createdAt|date('d/m/Y à H:i:s') ', alors on affiche dans l'entête du tableau 'DATE'#}
+                        {% if oneColonne == 'createdAt' %}
+
+                                    <th> DATE </th>
+                        {% else %}
+                        {# upper : filtre Twig permettant d'afficher le nom des colonnes en majuscule #}
+                        <th> {{ oneColonne|upper }}</th>
+
+                        {% endif %}
+                    {% endfor %}
+
+                        <th> CATEGORIE </th>
+                        <th> NB DE Commentaires </th>
+            </tr>
+
+            {# aticlesBdd : variable Twig envoyé dans le template par AdminController qui contient tout les article de la table SQL Article #}
+            {% for oneArticle in articlesBdd %}
+
+            <tr>
+                <td>{{ oneArticle.id}}</td>
+                <td>{{ oneArticle.title}}</td>
+                <td>{{ oneArticle.content|striptags|slice(0,200) }}...</td>
+                <td><img src="{{ oneArticle.image}}" alt="{{ oneArticle.title}}" class="img-admin-articles"></td>
+                <td>{{ oneArticle.createdAt|date('d/m/Y à H:i:s') }}</td>
+                <td>{{ oneArticle.category.title }}</td>
+                {# Exo : créer une nouvelle colonne permettant d'afficher le nombre de commentaire par article#}
+                {# length : filtre twig permettant de calculer la taille d'un ARRAY#}
+                <td>{{ oneArticle.comments|length }}</td>
+                <td><a href="{{ path('admin_edit_article', {'id': oneArticle.id} )}}" class="btn btn-info"><i class="fas fa-pencil-alt"></i></a></td>
+
+                <td><a href="{{ path('admin_remove_article', {'id': oneArticle.id}) }}" class="btn btn-danger" onclick ="return(confirm('Voulez-vous vraiment supprimer cet article ?'))"><i class="fas fa-trash-restore"></i></a></td>
+
+            </tr>
+
+            {% endfor %}
+        </table>
+
+{% endblock %}

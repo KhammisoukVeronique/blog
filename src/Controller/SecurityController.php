@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class SecurityController extends AbstractController
@@ -67,14 +68,27 @@ class SecurityController extends AbstractController
     
     /**
      * Méthode permettant de se connecter au blog
+     * AuthenticationUtils permet de récuperer le dernier e-mail saisie au moment de la connexion
+     * AuthenticationUtils permet de récuperer les messages d'erreurs enn cas de mauvaise connexion
      * 
      * @Route("/connexion", name="security_login")
      * 
      */
 
-    public function login(): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        return $this->render('security/login.html.twig');
+        //Récupération du msg d'erreur en cas de mauvaise connexion
+        $error = $authenticationUtils->getLastAuthenticationError();
+
+        // Récupération du dernier username (email) saisi par l'internaute dans le formulaire de connexion en cas d'erreur
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('security/login.html.twig', [
+                        'error' => $error,
+                        'lastUsername' => $lastUsername
+
+        ]);
+
 
     }
 
