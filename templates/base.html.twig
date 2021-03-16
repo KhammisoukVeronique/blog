@@ -49,12 +49,19 @@
                             <a class="dropdown-item" href="#">Something else here</a>
                             </div>
                         </li>
+                        {# Si l'utilisateur en BDD a un rôle garanti ROLE_ADMIN, on lui propose un lien pr accéder au Back Office#}
+                        {# is_granted() : fonction Twig #}
+                        {% if is_granted('ROLE_ADMIN') %}
+                                <li class="nav-item">
+                                     <a class="nav-link" href=" {{ path('admin') }}">BackOffice</a>
+                                </li>
+                        {% endif %}
 
                         {# Si app.user retourne TRUE, cela veut dire que l'internaute est bien connecté, on lui propose un lien de deconnexion#}
                         {% if app.user %}
                                  <li class="nav-item">
-                            <a class="nav-link" href=" {{ path('security_logout') }}">Déconnexion</a>
-                        </li>
+                                     <a class="nav-link" href=" {{ path('security_logout') }}">Déconnexion</a>
+                                </li>
                         
                         {% endif %}
 
