@@ -8,18 +8,58 @@
 {% block body %}
 
 
-        <h1 class="display-4 text-center my-5">  BACK OFFICE || GESTION des CATEGORIES </h1>
+        <h1 class="display-4 text-center my-5">  BACK OFFICE || GESTION des CATEGORIES
+                <small> <a href="{{ path('admin_new_category') }}" class="btn btn-info btn-sm"> New catégorie </a></small> 
+        </h1>
+
+        {#     danger    msg             #}
+        {#     success   msg             #}
+        {% for label, messages in app.flashes(['danger', 'success']) %}
+
+                {# 1 msg/tour de boucle  in all msg #}
+                {% for oneMessage in messages %}
+                    
+                    {#                   bg-success              #}
+                    {#                   bg-danger               #}
+                    <div class="col-md-5 bg-{{ label }} p-4 rounded mx-auto text-center text-white mb-3">
+                             {{ oneMessage }}
+                    </div>
+                {% endfor %}
+
+        {% endfor %}
 
         <table class="table table-bordered text-center">
 
                 <tr>
-                    {% for oneColonne in colonnes %}
+                     {% for oneColonne in colonnes %} {#oneColonne = une colonne par tour de boucle #}
 
-                    
+                        {% if oneColonne == 'title' %}
+                                <th> TITRE </th>
+                        {% else %}
+                                <th> {{ oneColonne|upper }}</th>
+                        {% endif %}
+
                     {% endfor %}
-            
+                            <th> NB ARTICLE</th>
+                            <th> MODIFIER</th>
+                            <th> SUPP'</th>
+                            
+
 
                 </tr>
+                
+                {% for oneCategory in categorieBdd %}
+                    <tr>
+                        <td> {{ oneCategory.id}} </td>
+                        <td> {{ oneCategory.title}} </td>
+                        <td> {{ oneCategory.description}} </td>
+                        <td>{{ oneCategory.articles|length }}</td>
 
+                
+                        <td><a href="{{ path('admin_edit_category', {'id' : oneCategory.id })}}"  class="btn btn-info"><i class="fas fa-pencil-alt"></i></a></td>    
 
+                        <td><a href="{{ path('admin_remove_category', {'id': oneCategory.id}) }}" class="btn btn-danger" onclick ="return(confirm  ('Voulez-vous vraiment supprimer cet catégorie ?'))"><i class="fas fa-trash-restore"></i></a></td>
+                    </tr>
+                {% endfor %}
+       </table>
 {% endblock %}

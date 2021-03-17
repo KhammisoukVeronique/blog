@@ -3,10 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Comment;
 use App\Entity\Category;
 use App\Form\ArticleFormType;
+use App\Form\CategoryFormType;
 use App\Repository\ArticleRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -92,7 +95,7 @@ class AdminController extends AbstractController
             $manager->persist($article); // on prépare la requete de modification
             $manager->flush();// on execure la requete de modification SQL
 
-            //On stock en session un message utilisatieur contenant l'id de l'article modifié
+            //On stock en session un message utilisateur contenant l'id de l'article modifié
             $this->addFlash('success', "L'article n°" . $article->getId() ." a bien été modifié");
 
             // Une fois la modification executé, on redirige l'internaute vers l'affichage des articles dnas le BO
@@ -110,13 +113,42 @@ class AdminController extends AbstractController
      * Méthode permettant d'afficher sous forme de tableau HTML les catégories stockées en BDD
      * 
      * @Route("/admin/categories", name="admin_category")
+     * @Route("/admin/category/{id}/remove", name="admin_remove_category")
      */
-    public function adminCategory(EntityManagerInterface $manager, CategoryRepository $repoCategory, Category $category): Response
+    public function adminCategory(EntityManagerInterface $manager, CategoryRepository $repoCategory, Category $category = null): Response
     {
 
         $colonnes = $manager->getClassMetadata(Category::class)->getFieldNames();
 
+        //Si la variable $category retourne TRUE, cela veut dire qu'elle contient une categorie de la BDD, alors on entre dans le IF et on tente d'executer la suppression
+        if($category)
+        {
+            
+            // Nous avons une relation entre la table Article et Category et une contrainte d'intégrité en RESTRICT, donc nous ne pouvons pas supprimer la cétégorie si 1 article lui est tjs associé
+            // getAticles() de l'entité Category retourne tout les articlez associés à la catégorie (relation bi-directionnelle)
+            // Si getArticle() retourne un résultat vide, cela veut dire qu'il n'y a plus aucun article associé à la catégorie, nous pouvons donc la supprimer
+            if($category->getArticles()->isEmpty())
+            {
+                $manager->remove($category);
+                $manager->flush();
+
+                $this->addFlash('success', "La catégorie a bien été supprimé ");
+
+            }
+            else// Sinon dans tout les autres cas, des articles sont toujours associés à la catégorie, on affiche un message erreur utilisateur
+            {
+                $this->addFlash('danger', "Impossible de supprimer la catégorie => des articles lui sont associés");
+
+            }   
+
+            return $this->redirectToRoute('admin_category');
+        }
+
         $category = $repoCategory->findAll();
+
+        //dump($category);
+
+        
 
         return $this->render('admin/admin_category.html.twig', [
             'colonnes' => $colonnes,
@@ -129,14 +161,109 @@ class AdminController extends AbstractController
      * @Route("/admin/category/{id}/edit", name="admin_edit_category")
      * 
      */
-    public function adminFormCategory()
+    public function adminFormCategory( Request $request, EntityManagerInterface $manager, Category $category = null ) : Response
     {
 
-        return $this->render('admin/admin_form_category.html.twig');
+        /*
+                1. Créer une classe permettant de générer un formulaire correspondant à l'entité Catégory(make:form)
+                2. dans le controller, faites en sorte d'importer et de créer le formulaire, en le reliant à l'entité
+                3. Envoyé le formulaire sur le template (render et l'afficher en front)
+                4. Récupérer et envoyer les données de $_POST dans la bonne entité à la validation du formulaire (handleRequest + $request)
+                5. Générer et executer la requete d'insertion à la validation du formulaire ($manager + persist + flush)
+        */ 
+        // Si l'objet entité $catégory n'existe pas, et donc 'NULL', ça veut dire qu'on est sur la route /admin/category/new, que nous souhaitons créer une nouvelle catégorie, alors on entre ds le IF
+        //si l'objet entité $category possède un id, cela veut dire que nous sommes sur la route "admin/category/{id}/edit, l'id envoyé dans l'URL a été selctionné en BDD, nous souhaitons modifier la catégorie existante
+        if(!$category)
+        {
+            $category = new Category;
+        }
+        
+
+        // crée moi un formulaire 'CategoryFormType'qui remplisse mon entité Category
+        $formCategory = $this->createForm(CategoryFormType::class, $category,[
+            'validation_groups' => ['category']
+        ]); // 
+                   
+
+        dump($request);
+
+        $formCategory->handleRequest($request);//$_POST ['title']-->envoi dans-->setTitle($_POST['title']) 
+
+        dump($category);
+
+        if($formCategory->isSubmitted() && $formCategory->isValid())
+        {
+            if(!$category->getId())
+                $message = "La catégorie" . $category->getTitle() . "a bien été enregistré";
+            else 
+                $message = "La catégorie" .$category->getTitle() . "a été modifié avec succès";
+
+            $manager->persist($category);// on prépare et on garde en mémoire la requête INSERT
+            $manager->flush();
+
+            $this->addFlash('success', "La catégorie a bien été enregistré ");
+
+            return $this->redirectToRoute('admin_category');
+        }
+       
+
+        return $this->render('admin/admin_form_category.html.twig', [
+            'formCategory' => $formCategory->createView()// creatview() pr avoir un  objet manipulable en Twig
+
+        ]);
+
+
     }
 
+    /**
+     * Méthode permettant d'afficher tout les commentaires des articles stockés en BDD
+     * Méthode permettant de supprimer un commentaire en BDD
+     * 
+     * @Route("/admin/comments", name="admin_comments")
+     * @Route("/admin/comment/{id}/remove", name="admin_remove_comment")
+     */
+
+    public function adminComment(EntityManagerInterface $manager, CommentRepository $repoComment, Comment $comment = null): Response
+    {
+        /**
+        *1. Faites en sorte de récupérer les métadonnées de la table Comment afin de récupérer le nom des champs/colonne de la table SQL comment et les transmettre au template
+        * 2. Afficher le nom des champs/colonne sous forme de tableau HTML
+        * 3. Dans le controller, sélctionner tout les commentaires stockés en BDD et les transmettre au template
+        * 4. Afficher tout les commentaires de la BDD sous forme de tableau HTML dansle template
+        * 5. Prévoir 2 liens (modification / suppression) pour chaque commentaire 
+        * 6. Réaliser le traitement permettant de supprimer un commentaire dans la BDD
+        *  
+        * 
+        */
+        
+        $colonnes = $manager->getClassMetadata(Comment::class)->getFieldNames();
+
+        dump($colonnes);
+
+        $commentBdd = $repoComment->findAll();
+
+        dump($comment);
 
 
+        return $this->render('admin/admin_comments.html.twig',[
+                'colonnes' => $colonnes,
+                'commentBdd' => $commentBdd
+
+
+        ]);
+    }
+
+    /**
+     * Méthode permettant de modifier un commentaire en BDD
+     * 
+     * 
+     * @Route("/admin/comment/{id}/edit", name="admin_edit_comment")
+     */
+    public function editComment(): Response
+    {
+
+        return $this->render('admin/admin_edit_comments.html.twig');
+    }
 
 
 
